@@ -7,24 +7,30 @@ Este arquivo não é documentação do produto; é o "como trabalhar" do projeto
 
 ## Por que este projeto existe
 
-`recipe-flow` é a **peça de portfólio** criada para a vaga da **levva (React Sênior)** e faz parte
-do processo de busca ativa registrado no repositório **`carreira`** (`../carreira`).
+`recipe-flow` é uma **peça de portfólio** criada para uma **entrevista técnica de React Sênior**.
 
-O objetivo não é um produto real: é uma **"prova" a ser apresentada na entrevista técnica**,
-demonstrando domínio da stack exata da vaga (React + TypeScript + Material UI + React Flow), boas
-práticas (testes, CI/CD, organização de código) e entendimento do domínio (MES/EBR, produção
-farmacêutica). Toda decisão de código deve ser **explicável em voz alta** na técnica.
+O objetivo não é um produto real: é uma **"prova"**, demonstrando domínio da stack da vaga
+(React + TypeScript + Material UI + React Flow), boas práticas (testes, CI/CD, organização de código)
+e entendimento do domínio (MES/EBR, produção farmacêutica). Toda decisão de código deve ser
+**explicável em voz alta** na entrevista.
 
 > Regra de ouro: prefira clareza e explicabilidade à esperteza. O entrevistador vai ler e questionar
 > este código — inclusive as decisões de arquitetura e o histórico de commits.
 
-## Referências no repo `carreira` (ler antes de mudar o escopo)
+## Contexto de domínio (MES/EBR)
 
-- `../carreira/vagas/2026-09-05-levva-react-senior/vaga.md` — requisitos e responsabilidades da vaga.
-- `../carreira/vagas/2026-09-05-levva-react-senior/prep-tecnica.md` — plano da prep, escopo do demo
-  e checklist de entrega.
-- `../carreira/vagas/2026-09-05-levva-react-senior/entrevista.md` — glossário MES/EBR e como falar.
-- `../carreira/agenda/README.md` — calendário e prazos (o que fazer em cada bloco).
+O demo simula a execução de uma receita na produção farmacêutica. Vocabulário mínimo:
+
+- **MES (Manufacturing Execution System):** acompanha e controla a produção no chão de fábrica em
+  tempo real, do início ao fim do lote.
+- **EBR (Electronic Batch Record):** registro eletrônico do lote. Versão digital do registro em
+  papel que documenta como um lote foi produzido, quem fez o quê e em que momento.
+- **Receita (recipe):** passo a passo da execução de um lote (etapas, ordem, parâmetros) que o
+  operador segue na tela.
+- **Lote:** instância de produção que percorre as etapas da receita.
+- **GMP:** boas práticas de fabricação; exigem rastreabilidade e auditoria.
+- **Ambiente regulado (ex.: 21 CFR Part 11):** toda ação fica registrada; a UI não deixa avançar
+  fora da regra. Erro de interface vira erro de produção.
 
 ## Escopo funcional (o que o demo precisa provar)
 
@@ -35,15 +41,9 @@ Espelhar um **fluxo de execução de receita** de um lote (contexto MES/EBR):
 - **Estados claros** por etapa: pendente, ativa, concluída, erro.
 - **Trilha de auditoria simulada**: quem fez o quê e quando (o que um EBR exige da UI).
 - Interface em **Material UI** com tema próprio (claro/escuro), tokens e componentes.
-- **Impacto primeiro, stack depois** ao descrever o projeto (ver `prep-tecnica.md`).
+- **Impacto primeiro, stack depois** ao descrever o projeto.
 
-Checklist de entrega (de `prep-tecnica.md`):
-
-- [ ] No ar e acessível (deploy).
-- [ ] README contando impacto > stack.
-- [ ] Testes passando no CI (GitHub Actions: lint + teste + build).
-- [ ] Código limpo e versionado; histórico de commits legível.
-- [ ] Decisões explicáveis (por que MUI theme, onde vive o estado, como testei).
+Plano detalhado por fases e progresso: `PLANO.md`.
 
 ## Stack
 
@@ -95,17 +95,15 @@ entregue com vermelho.
 - Toda regra de fluxo/validação relevante deve ter teste (Vitest + RTL); use MSW para API.
 - Mantenha os testes existentes passando; atualize-os quando o comportamento mudar.
 
-## Regras de conteúdo (herdadas do repo `carreira`)
+## Regras de conteúdo
 
-Valem para **README, textos da UI, descrições, commits e qualquer texto público**:
+Valem para **README, textos da UI, descrições e qualquer texto público**:
 
 - Tudo em **português (pt-BR)**.
 - **Impacto primeiro, stack depois** ao descrever o projeto.
 - **Primeira pessoa** em textos de apresentação; sem começar todo bullet com verbo.
 - Sem `~`, sem travessão no meio de frases, sem "cerca de" para anos.
-- Sem copiar o anúncio; sem listar falhas/gaps ("não sei", "não tenho experiência com").
-- Nunca "MEI" nem "Brasil" em texto público; contratação é "PJ" e localização é "Remoto".
-- Premissas imutáveis da busca: remoto-BR e PJ; jamais sugerir presencial/híbrido/CLT.
+- Sem copiar textos de terceiros; sem listar falhas/gaps ("não sei", "não tenho experiência com").
 
 ## Verificação ao concluir uma edição
 
