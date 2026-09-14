@@ -11,8 +11,9 @@ import {
   Typography,
 } from '@mui/material'
 import type { ChipProps } from '@mui/material'
+import type { BatchStatus } from '../domain'
 
-export type BatchStatus = 'idle' | 'running' | 'paused' | 'done'
+export type { BatchStatus }
 
 const STATUS_CONFIG: Record<BatchStatus, { label: string; color: ChipProps['color'] }> = {
   idle: { label: 'Aguardando', color: 'default' },

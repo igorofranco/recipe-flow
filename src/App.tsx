@@ -1,11 +1,10 @@
-import { useState } from 'react'
 import { Box } from '@mui/material'
 import { useColorScheme } from '@mui/material/styles'
 import { Background, Controls, MiniMap, ReactFlow, type Edge, type Node } from '@xyflow/react'
-import BatchExecutionLayout, { type BatchStatus } from './layouts/BatchExecutionLayout'
+import BatchExecutionLayout from './layouts/BatchExecutionLayout'
 import { flowStyles } from './flow/flowStyles'
-
-const STEPS = ['Preparação', 'Execução', 'Conferência', 'Conclusão']
+import { getOrderedSteps, sampleRecipe } from './domain'
+import { BatchExecutionProvider, useBatchExecution } from './state'
 
 const nodes: Node[] = [
   {
@@ -17,37 +16,32 @@ const nodes: Node[] = [
 
 const edges: Edge[] = []
 
-export default function App() {
-  const [activeStep, setActiveStep] = useState(0)
-  const [status, setStatus] = useState<BatchStatus>('idle')
+function BatchExecutionScreen() {
+  const { recipe, batch, start, pause, finish, selectStep } = useBatchExecution()
+  const orderedSteps = getOrderedSteps(recipe)
+  const activeStep = batch.currentStepId
+    ? Math.max(
+        orderedSteps.findIndex((step) => step.id === batch.currentStepId),
+        0,
+      )
+    : 0
   const { mode, systemMode } = useColorScheme()
   const colorMode = mode === 'system' ? (systemMode ?? 'light') : mode
-
-  const handleStart = () => {
-    setStatus('running')
-    setActiveStep((step) => (step === 0 ? 1 : step))
-  }
-
-  const handlePause = () => {
-    setStatus('paused')
-  }
-
-  const handleFinish = () => {
-    setActiveStep(STEPS.length)
-    setStatus('done')
-  }
 
   return (
     <BatchExecutionLayout
       title="Recipe Flow"
-      batchLabel="Lote #0001"
-      steps={STEPS}
+      batchLabel={batch.label}
+      steps={orderedSteps.map((step) => step.name)}
       activeStep={activeStep}
-      status={status}
-      onStepSelect={setActiveStep}
-      onStart={handleStart}
-      onPause={handlePause}
-      onFinish={handleFinish}
+      status={batch.status}
+      onStepSelect={(index) => {
+        const step = orderedSteps[index]
+        if (step) selectStep(step.id)
+      }}
+      onStart={start}
+      onPause={pause}
+      onFinish={finish}
     >
       <Box sx={flowStyles}>
         <ReactFlow colorMode={colorMode} nodes={nodes} edges={edges} fitView>
@@ -57,5 +51,13 @@ export default function App() {
         </ReactFlow>
       </Box>
     </BatchExecutionLayout>
+  )
+}
+
+export default function App() {
+  return (
+    <BatchExecutionProvider recipe={sampleRecipe}>
+      <BatchExecutionScreen />
+    </BatchExecutionProvider>
   )
 }

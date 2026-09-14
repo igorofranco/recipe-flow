@@ -33,13 +33,18 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] ESLint (flat) + Prettier configurados
 - [x] Primeiros testes (App, layout, tema, exemplo MSW)
 
-## Fase 1 — Modelo de domínio do fluxo
+## Fase 1 — Modelo de domínio do fluxo (concluída)
 
-- [ ] Tipos do domínio: receita, etapa, lote, estado de etapa e evento de auditoria
-- [ ] Dados de exemplo de uma receita com etapas reais (ordem e parâmetros)
-- [ ] Campos obrigatórios por etapa (o que o operador precisa registrar)
-- [ ] Definir onde vive o estado do lote (hook/store no App, fora dos nós do grafo)
-- [ ] Documentar em voz alta por que o estado vive ali e não no custom node
+- [x] Tipos do domínio: receita, etapa, lote, estado de etapa e evento de auditoria
+      (`src/domain/types.ts`)
+- [x] Dados de exemplo de uma receita com etapas reais (ordem e parâmetros)
+      (`src/domain/recipe.ts`)
+- [x] Campos obrigatórios por etapa (o que o operador precisa registrar)
+      (`RecordField` em `src/domain/types.ts`)
+- [x] Definir onde vive o estado do lote (hook/store no App, fora dos nós do grafo)
+      (`useReducer` + Context em `src/state/`)
+- [x] Documentar em voz alta por que o estado vive ali e não no custom node
+      (nó é projeção; estado único garante validação e auditoria, e sobrevive a re-layout)
 
 ## Fase 2 — Grafo no React Flow
 
