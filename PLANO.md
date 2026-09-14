@@ -96,11 +96,12 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Testes existentes atualizados quando o comportamento mudar
       (nenhuma regra mudou nesta fase; suíte mantida verde)
 
-## Fase 8 — CI/CD
+## Fase 8 — CI/CD (concluída)
 
-- [ ] GitHub Actions: lint + typecheck + test + build em push e pull request
-- [ ] Badge de status no README
-- [ ] Verificar o pipeline verde no repositório remoto
+- [x] GitHub Actions: lint + typecheck + test + build em push e pull request
+      (`.github/workflows/ci.yml` também roda `format:check`; Node 24 com cache npm)
+- [x] Badge de status no README (repo público em `github.com/igorofranco/recipe-flow`)
+- [x] Verificar o pipeline verde no repositório remoto (run `34817368067` ✅)
 
 ## Fase 9 — Deploy e README
 
