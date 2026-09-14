@@ -38,10 +38,7 @@ export interface BooleanRecordField extends RecordFieldBase {
 }
 
 export type RecordField =
-  | TextRecordField
-  | NumberRecordField
-  | SelectRecordField
-  | BooleanRecordField
+  TextRecordField | NumberRecordField | SelectRecordField | BooleanRecordField
 
 export interface RecipeStep {
   id: string

@@ -82,14 +82,14 @@ Plano detalhado por fases e progresso: `PLANO.md`.
 
 ## Comandos
 
-| Ação      | Comando                                             |
-| --------- | --------------------------------------------------- |
-| Dev       | `npm run dev`                                       |
-| Build     | `npm run build`                                     |
-| Typecheck | `npm run typecheck`                                 |
-| Lint      | `npm run lint` (`lint:fix` para corrigir)           |
-| Formatar  | `npm run format` (`format:check` para checar)       |
-| Testes    | `npm run test` (`test:watch`, `test:coverage`)      |
+| Ação      | Comando                                        |
+| --------- | ---------------------------------------------- |
+| Dev       | `npm run dev`                                  |
+| Build     | `npm run build`                                |
+| Typecheck | `npm run typecheck`                            |
+| Lint      | `npm run lint` (`lint:fix` para corrigir)      |
+| Formatar  | `npm run format` (`format:check` para checar)  |
+| Testes    | `npm run test` (`test:watch`, `test:coverage`) |
 
 **Ao concluir qualquer alteração:** rode `npm run lint`, `npm run test` e `npm run build`. Não
 entregue com vermelho.
