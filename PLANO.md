@@ -63,12 +63,12 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Estado erro (registro inválido ou incompleto)
 - [x] Destaque visual claro da etapa atual e da próxima ação do operador
 
-## Fase 4 — Validação de avanço
+## Fase 4 — Validação de avanço (concluída)
 
-- [ ] Regra: não avançar sem o registro obrigatório preenchido
-- [ ] Bloquear avanço e mostrar o motivo quando faltar registro
-- [ ] Permitir corrigir/reabrir etapa conforme a regra definida
-- [ ] Testes cobrindo a regra de validação (avança e não avança)
+- [x] Regra: não avançar sem o registro obrigatório preenchido
+- [x] Bloquear avanço e mostrar o motivo quando faltar registro
+- [x] Permitir corrigir/reabrir etapa conforme a regra definida
+- [x] Testes cobrindo a regra de validação (avança e não avança)
 
 ## Fase 5 — Trilha de auditoria
 

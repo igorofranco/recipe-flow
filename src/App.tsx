@@ -13,8 +13,17 @@ import { getOrderedSteps, getRecipeStep, sampleRecipe } from './domain'
 import { BatchExecutionProvider, useBatchExecution } from './state'
 
 function BatchExecutionScreen() {
-  const { recipe, batch, start, pause, finish, selectStep, setRecordField, completeStep } =
-    useBatchExecution()
+  const {
+    recipe,
+    batch,
+    start,
+    pause,
+    finish,
+    selectStep,
+    setRecordField,
+    completeStep,
+    reopenStep,
+  } = useBatchExecution()
   const orderedSteps = getOrderedSteps(recipe)
   const { nodes, edges } = useMemo(() => buildFlowGraph(recipe, batch), [recipe, batch])
 
@@ -33,6 +42,7 @@ function BatchExecutionScreen() {
     isPanelCurrent &&
     (batch.status === 'running' || batch.status === 'paused') &&
     panelStatus !== 'done'
+  const canReopen = !canComplete && (panelStatus === 'done' || panelStatus === 'error')
 
   const { mode, systemMode } = useColorScheme()
   const colorMode = mode === 'system' ? (systemMode ?? 'light') : mode
@@ -83,7 +93,9 @@ function BatchExecutionScreen() {
             record={batch.steps[panelStep.id]}
             isCurrent={isPanelCurrent}
             canComplete={canComplete}
+            canReopen={canReopen}
             onComplete={() => completeStep(panelStep.id)}
+            onReopen={() => reopenStep(panelStep.id)}
             onRecordChange={(fieldId, value) => setRecordField(panelStep.id, fieldId, value)}
           />
         ) : null}

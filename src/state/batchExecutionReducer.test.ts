@@ -1,9 +1,22 @@
 import { describe, expect, it } from 'vitest'
 import { sampleRecipe } from '../domain'
+import type { BatchExecutionState } from './batchExecutionReducer'
 import { batchExecutionReducer, createInitialBatchExecutionState } from './batchExecutionReducer'
 
 function initialState() {
   return createInitialBatchExecutionState(sampleRecipe, { id: 'lote-teste' })
+}
+
+function recordValues(
+  state: BatchExecutionState,
+  stepId: string,
+  values: Record<string, string | number | boolean>,
+): BatchExecutionState {
+  return Object.entries(values).reduce(
+    (result, [fieldId, value]) =>
+      batchExecutionReducer(result, { type: 'recordChanged', stepId, fieldId, value }),
+    state,
+  )
 }
 
 describe('batchExecutionReducer', () => {
@@ -160,6 +173,71 @@ describe('batchExecutionReducer', () => {
     const initial = initialState()
 
     expect(batchExecutionReducer(initial, { type: 'stepCompleted', stepId: 'inexistente' })).toBe(
+      initial,
+    )
+  })
+
+  it('reabre uma etapa concluída e invalida as etapas seguintes', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const completedPesagem = batchExecutionReducer(
+      recordValues(started, 'pesagem', {
+        'lote-insumo': 'LOTE-1',
+        'massa-pesada': 505,
+        'balanca-calibrada': true,
+      }),
+      { type: 'stepCompleted', stepId: 'pesagem' },
+    )
+    const completedPreparo = batchExecutionReducer(
+      recordValues(completedPesagem, 'preparo', {
+        'volume-agua': 15.2,
+        'temperatura-medida': 25,
+        'ph-medido': 5.5,
+        'aspecto-conforme': true,
+      }),
+      { type: 'stepCompleted', stepId: 'preparo' },
+    )
+
+    expect(completedPreparo.batch.currentStepId).toBe('envase')
+
+    const reopened = batchExecutionReducer(completedPreparo, {
+      type: 'stepReopened',
+      stepId: 'pesagem',
+    })
+
+    expect(reopened.batch.currentStepId).toBe('pesagem')
+    expect(reopened.batch.steps.pesagem.status).toBe('pending')
+    expect(reopened.batch.steps.pesagem.completedAt).toBeUndefined()
+    expect(reopened.batch.steps.preparo.status).toBe('pending')
+    expect(reopened.batch.steps.envase.status).toBe('pending')
+  })
+
+  it('reabre uma etapa de um lote concluído e retoma a execução', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const completed = batchExecutionReducer(
+      recordValues(started, 'pesagem', {
+        'lote-insumo': 'LOTE-1',
+        'massa-pesada': 505,
+        'balanca-calibrada': true,
+      }),
+      { type: 'stepCompleted', stepId: 'pesagem' },
+    )
+    const finished = batchExecutionReducer(completed, { type: 'finished' })
+
+    expect(finished.batch.status).toBe('done')
+
+    const reopened = batchExecutionReducer(finished, { type: 'stepReopened', stepId: 'pesagem' })
+
+    expect(reopened.batch.status).toBe('running')
+    expect(reopened.batch.currentStepId).toBe('pesagem')
+  })
+
+  it('ignora reabrir etapa pendente ou inexistente', () => {
+    const initial = initialState()
+
+    expect(batchExecutionReducer(initial, { type: 'stepReopened', stepId: 'pesagem' })).toBe(
+      initial,
+    )
+    expect(batchExecutionReducer(initial, { type: 'stepReopened', stepId: 'inexistente' })).toBe(
       initial,
     )
   })

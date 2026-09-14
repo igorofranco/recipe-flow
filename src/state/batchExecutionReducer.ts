@@ -13,6 +13,7 @@ export type BatchExecutionAction =
   | { type: 'stepSelected'; stepId: string }
   | { type: 'recordChanged'; stepId: string; fieldId: string; value: RecordValue }
   | { type: 'stepCompleted'; stepId: string }
+  | { type: 'stepReopened'; stepId: string }
 
 export interface BatchExecutionState {
   recipe: Recipe
@@ -137,6 +138,38 @@ export function batchExecutionReducer(
           },
           currentStepId: nextStep ? nextStep.id : null,
           status: nextStep ? batch.status : 'done',
+        },
+      }
+    }
+
+    case 'stepReopened': {
+      const record = batch.steps[action.stepId]
+
+      if (!record || record.status === 'pending') {
+        return state
+      }
+
+      const orderedSteps = getOrderedSteps(state.recipe)
+      const reopenIndex = orderedSteps.findIndex((step) => step.id === action.stepId)
+
+      if (reopenIndex < 0) {
+        return state
+      }
+
+      const steps = { ...batch.steps }
+
+      orderedSteps.slice(reopenIndex).forEach((step) => {
+        const current = steps[step.id]
+        steps[step.id] = { ...current, status: 'pending', completedAt: undefined }
+      })
+
+      return {
+        ...state,
+        batch: {
+          ...batch,
+          status: batch.status === 'done' ? 'running' : batch.status,
+          currentStepId: action.stepId,
+          steps,
         },
       }
     }

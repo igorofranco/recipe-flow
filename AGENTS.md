@@ -66,11 +66,12 @@ Plano detalhado por fases e progresso: `PLANO.md`.
   nós/arestas, sem guardar estado no nó.
 - Estados por etapa (pendente, ativa, concluída, erro) derivados do lote em `src/flow/buildFlowGraph.ts`;
   validação do registro em `src/domain/validation.ts` e transição em `stepCompleted`.
+- Avanço bloqueado sem registro obrigatório, com motivo por campo e reabertura de etapa
+  (`stepReopened` invalida as etapas seguintes).
 - Testes de App, layout, tema, grafo, validação e painel + exemplo com MSW.
 
 ## O que falta (a construir)
 
-- Regras de validação de avanço na UI (bloquear, mostrar o motivo e reabrir etapa).
 - Trilha de auditoria (registro das ações/registros do operador).
 - README do repo (impacto > stack).
 - GitHub Actions (lint + test + build) e deploy.

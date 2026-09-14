@@ -27,7 +27,9 @@ export interface StepDetailsPanelProps {
   record?: StepRecord
   isCurrent?: boolean
   canComplete?: boolean
+  canReopen?: boolean
   onComplete?: () => void
+  onReopen?: () => void
   onRecordChange: (fieldId: string, value: RecordValue) => void
 }
 
@@ -37,7 +39,9 @@ export default function StepDetailsPanel({
   record,
   isCurrent = false,
   canComplete = false,
+  canReopen = false,
   onComplete,
+  onReopen,
   onRecordChange,
 }: StepDetailsPanelProps) {
   const meta = STATUS_META[status]
@@ -45,6 +49,7 @@ export default function StepDetailsPanel({
     status === 'error'
       ? validateStepRecord(step, record ?? { stepId: step.id, status, values: {} }).errors
       : []
+  const errorByField = new Map(errors.map((error) => [error.fieldId, error.message]))
 
   return (
     <Paper
@@ -136,6 +141,7 @@ export default function StepDetailsPanel({
                 key={field.id}
                 field={field}
                 value={record?.values[field.id]}
+                error={errorByField.get(field.id)}
                 onChange={(value) => onRecordChange(field.id, value)}
               />
             ))}
@@ -148,21 +154,42 @@ export default function StepDetailsPanel({
           <Typography variant="overline" color="text.secondary">
             {isCurrent ? 'Próxima ação' : 'Ação'}
           </Typography>
-          <Button
-            fullWidth
-            variant="contained"
-            color={status === 'error' ? 'error' : 'primary'}
-            disabled={!canComplete}
-            onClick={onComplete}
-            sx={{ mt: 1 }}
-          >
-            Concluir etapa
-          </Button>
-          {isCurrent ? (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
-              Preencha os registros obrigatórios para avançar.
+
+          {canComplete ? (
+            <>
+              <Button
+                fullWidth
+                variant="contained"
+                color={status === 'error' ? 'error' : 'primary'}
+                onClick={onComplete}
+                sx={{ mt: 1 }}
+              >
+                Concluir etapa
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                Preencha os registros obrigatórios para avançar.
+              </Typography>
+            </>
+          ) : canReopen ? (
+            <>
+              <Button
+                fullWidth
+                variant="outlined"
+                color="warning"
+                onClick={onReopen}
+                sx={{ mt: 1 }}
+              >
+                Reabrir etapa
+              </Button>
+              <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+                Reabrir permite corrigir o registro. As etapas seguintes voltam a pendente.
+              </Typography>
+            </>
+          ) : (
+            <Typography variant="body2" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              Selecione a etapa atual para registrar e avançar.
             </Typography>
-          ) : null}
+          )}
         </Box>
       </Stack>
     </Paper>

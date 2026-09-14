@@ -131,6 +131,46 @@ describe('StepDetailsPanel', () => {
       />,
     )
 
-    expect(screen.getByRole('button', { name: 'Concluir etapa' })).toBeDisabled()
+    expect(screen.queryByRole('button', { name: 'Concluir etapa' })).not.toBeInTheDocument()
+    expect(
+      screen.getByText('Selecione a etapa atual para registrar e avançar.'),
+    ).toBeInTheDocument()
+  })
+
+  it('marca o campo que falhou na validação', () => {
+    render(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="error"
+        record={{ stepId: 'pesagem', status: 'error', values: { 'lote-insumo': 'LOTE-1' } }}
+        isCurrent
+        canComplete
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByLabelText(/Massa pesada/)).toHaveAttribute('aria-invalid', 'true')
+    expect(screen.getByLabelText(/Lote do insumo/)).toHaveAttribute('aria-invalid', 'false')
+  })
+
+  it('oferece reabrir uma etapa concluída', async () => {
+    const user = userEvent.setup()
+    const onReopen = vi.fn()
+
+    render(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="done"
+        record={{ stepId: 'pesagem', status: 'done', values: {} }}
+        canReopen
+        onReopen={onReopen}
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.queryByRole('button', { name: 'Concluir etapa' })).not.toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Reabrir etapa' }))
+    expect(onReopen).toHaveBeenCalledOnce()
   })
 })

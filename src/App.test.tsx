@@ -67,4 +67,23 @@ describe('App', () => {
     expect(getFlowNode(container, 'Pesagem de insumos')).toHaveTextContent('Concluída')
     expect(screen.getByRole('heading', { name: 'Preparo da solução' })).toBeInTheDocument()
   })
+
+  it('permite reabrir uma etapa concluída para corrigir o registro', async () => {
+    const user = userEvent.setup()
+    const { container } = renderApp('light')
+
+    await user.click(screen.getByRole('button', { name: 'Iniciar' }))
+    await user.type(screen.getByLabelText(/Lote do insumo/), 'LOTE-1')
+    await user.type(screen.getByLabelText(/Massa pesada/), '505')
+    await user.click(screen.getByLabelText(/Balança calibrada no turno/))
+    await user.click(screen.getByRole('button', { name: 'Concluir etapa' }))
+
+    await user.click(screen.getByRole('tab', { name: 'Pesagem de insumos' }))
+    expect(screen.getByRole('button', { name: 'Reabrir etapa' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Reabrir etapa' }))
+
+    expect(getFlowNode(container, 'Pesagem de insumos')).toHaveTextContent('Em andamento')
+    expect(screen.getByRole('button', { name: 'Concluir etapa' })).toBeInTheDocument()
+  })
 })
