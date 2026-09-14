@@ -1,5 +1,6 @@
 import { alpha, createTheme } from '@mui/material/styles'
 import type { PaletteColor, PaletteColorOptions } from '@mui/material/styles'
+import { accessibleContrastText } from './contrast'
 import { fontFamily, radius, tokensByMode } from './tokens'
 import type { DesignTokens, ThemeMode } from './tokens'
 
@@ -40,16 +41,34 @@ declare module '@mui/material/styles' {
 }
 
 function buildPalette(tokens: DesignTokens, mode: ThemeMode) {
+  const contrast = (main: string, content: string) =>
+    accessibleContrastText(main, [content, tokens.baseContent])
+
   return {
     mode,
-    primary: { main: tokens.primary, contrastText: tokens.primaryContent },
-    secondary: { main: tokens.secondary, contrastText: tokens.secondaryContent },
-    info: { main: tokens.info, contrastText: tokens.infoContent },
-    success: { main: tokens.success, contrastText: tokens.successContent },
-    warning: { main: tokens.warning, contrastText: tokens.warningContent },
-    error: { main: tokens.error, contrastText: tokens.errorContent },
-    accent: { main: tokens.accent, contrastText: tokens.accentContent },
-    neutral: { main: tokens.neutral, contrastText: tokens.neutralContent },
+    primary: {
+      main: tokens.primary,
+      contrastText: contrast(tokens.primary, tokens.primaryContent),
+    },
+    secondary: {
+      main: tokens.secondary,
+      contrastText: contrast(tokens.secondary, tokens.secondaryContent),
+    },
+    info: { main: tokens.info, contrastText: contrast(tokens.info, tokens.infoContent) },
+    success: {
+      main: tokens.success,
+      contrastText: contrast(tokens.success, tokens.successContent),
+    },
+    warning: {
+      main: tokens.warning,
+      contrastText: contrast(tokens.warning, tokens.warningContent),
+    },
+    error: { main: tokens.error, contrastText: contrast(tokens.error, tokens.errorContent) },
+    accent: { main: tokens.accent, contrastText: contrast(tokens.accent, tokens.accentContent) },
+    neutral: {
+      main: tokens.neutral,
+      contrastText: contrast(tokens.neutral, tokens.neutralContent),
+    },
     base: {
       100: tokens.base100,
       200: tokens.base200,
@@ -79,6 +98,21 @@ export function createAppTheme() {
       fontSize: 14,
       fontWeightMedium: 600,
       button: { textTransform: 'none', fontWeight: 600 },
+    },
+    components: {
+      MuiButton: {
+        defaultProps: { disableElevation: true },
+        styleOverrides: { root: { minHeight: 40, borderRadius: radius.field } },
+      },
+      MuiCard: {
+        styleOverrides: { root: { borderRadius: radius.box } },
+      },
+      MuiChip: {
+        styleOverrides: { root: { borderRadius: radius.selector } },
+      },
+      MuiOutlinedInput: {
+        styleOverrides: { root: { borderRadius: radius.field } },
+      },
     },
   })
 }

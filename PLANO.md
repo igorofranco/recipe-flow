@@ -78,9 +78,12 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 
 ## Fase 6 — Tema MUI e design system
 
-- [ ] Conferir o mapeamento do design system (`../cambiata-ui`) para o `createTheme`
-- [ ] Revisar tokens claro/escuro e acessibilidade (contraste)
-- [ ] Garantir que nenhuma cor esteja hardcoded (tudo pelo tema)
+- [x] Conferir o mapeamento do design system (`../cambiata-ui`) para o `createTheme`
+      (`src/theme/designSystem.ts` converte os tokens oklch; overrides de componentes no tema)
+- [x] Revisar tokens claro/escuro e acessibilidade (contraste)
+      (contraste WCAG AA calculado em `src/theme/contrast.ts` e coberto por testes)
+- [x] Garantir que nenhuma cor esteja hardcoded (tudo pelo tema)
+      (teste `src/theme/noHardcodedColors.test.ts` varre o código fora de `src/theme`)
 
 ## Fase 7 — Testes
 

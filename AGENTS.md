@@ -57,6 +57,9 @@ Plano detalhado por fases e progresso: `PLANO.md`.
 ## Estado atual
 
 - Tema MUI com tokens claro/escuro (`src/theme/`), paleta custom (`accent`, `neutral`, `base`) e `radius`.
+- Mapeamento do design system (`../cambiata-ui`) em `src/theme/designSystem.ts` (tokens oklch
+  convertidos para sRGB), contraste WCAG AA calculado em `src/theme/contrast.ts` e guarda de
+  "nenhuma cor hardcoded" fora de `src/theme`.
 - Layout do lote (`src/layouts/BatchExecutionLayout.tsx`): AppBar, chip de status, botões
   Iniciar/Pausar/Finalizar e Stepper de etapas.
 - Canvas React Flow estilizado pelo tema (`src/flow/flowStyles.ts`) com nós gerados a partir das
@@ -76,7 +79,6 @@ Plano detalhado por fases e progresso: `PLANO.md`.
 
 - README do repo (impacto > stack).
 - GitHub Actions (lint + test + build) e deploy.
-- Mapear o design system (`../cambiata-ui`) para o `createTheme` do MUI, se ainda não coberto.
 
 ## Comandos
 
