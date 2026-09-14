@@ -70,11 +70,11 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Permitir corrigir/reabrir etapa conforme a regra definida
 - [x] Testes cobrindo a regra de validação (avança e não avança)
 
-## Fase 5 — Trilha de auditoria
+## Fase 5 — Trilha de auditoria (concluída)
 
-- [ ] Registrar eventos (ator, ação, etapa, horário, detalhe)
-- [ ] Exibir a trilha na interface
-- [ ] Teste cobrindo o registro dos eventos (quem fez o quê e quando)
+- [x] Registrar eventos (ator, ação, etapa, horário, detalhe)
+- [x] Exibir a trilha na interface
+- [x] Teste cobrindo o registro dos eventos (quem fez o quê e quando)
 
 ## Fase 6 — Tema MUI e design system
 

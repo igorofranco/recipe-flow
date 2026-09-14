@@ -6,18 +6,20 @@ import { batchExecutionReducer, createInitialBatchExecutionState } from './batch
 
 export interface BatchExecutionProviderProps extends CreateBatchOptions {
   recipe: Recipe
+  operator?: string
   children: ReactNode
 }
 
 export function BatchExecutionProvider({
   recipe,
+  operator,
   children,
   ...options
 }: BatchExecutionProviderProps) {
   const [state, dispatch] = useReducer(
     batchExecutionReducer,
-    { recipe, options },
-    (init) => createInitialBatchExecutionState(init.recipe, init.options),
+    { recipe, options, operator },
+    (init) => createInitialBatchExecutionState(init.recipe, init.options, init.operator),
   )
 
   return (

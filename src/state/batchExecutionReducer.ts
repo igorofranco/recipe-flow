@@ -1,10 +1,17 @@
 import {
+  createAuditEvent,
   createBatchFromRecipe,
   getOrderedSteps,
   getRecipeStep,
   validateStepRecord,
 } from '../domain'
-import type { Batch, CreateBatchOptions, Recipe, RecordValue } from '../domain'
+import type {
+  Batch,
+  CreateAuditEventInput,
+  CreateBatchOptions,
+  Recipe,
+  RecordValue,
+} from '../domain'
 
 export type BatchExecutionAction =
   | { type: 'started' }
@@ -15,23 +22,38 @@ export type BatchExecutionAction =
   | { type: 'stepCompleted'; stepId: string }
   | { type: 'stepReopened'; stepId: string }
 
+export const DEFAULT_OPERATOR = 'Operador'
+
 export interface BatchExecutionState {
   recipe: Recipe
   batch: Batch
+  operator: string
+}
+
+function appendAudit(
+  batch: Batch,
+  actor: string,
+  event: Omit<CreateAuditEventInput, 'actor'>,
+): Batch {
+  return {
+    ...batch,
+    auditTrail: [...batch.auditTrail, createAuditEvent({ actor, ...event })],
+  }
 }
 
 export function createInitialBatchExecutionState(
   recipe: Recipe,
   options?: CreateBatchOptions,
+  operator: string = DEFAULT_OPERATOR,
 ): BatchExecutionState {
-  return { recipe, batch: createBatchFromRecipe(recipe, options) }
+  return { recipe, batch: createBatchFromRecipe(recipe, options), operator }
 }
 
 export function batchExecutionReducer(
   state: BatchExecutionState,
   action: BatchExecutionAction,
 ): BatchExecutionState {
-  const { batch } = state
+  const { batch, operator } = state
 
   switch (action.type) {
     case 'started': {
@@ -40,15 +62,20 @@ export function batchExecutionReducer(
       }
 
       const firstStepId = getOrderedSteps(state.recipe)[0]?.id ?? null
-
-      return {
-        ...state,
-        batch: {
+      const nextBatch = appendAudit(
+        {
           ...batch,
           status: 'running',
           currentStepId: batch.currentStepId ?? firstStepId,
         },
-      }
+        operator,
+        {
+          action: 'batch.started',
+          detail: `${state.recipe.name} (${state.recipe.code})`,
+        },
+      )
+
+      return { ...state, batch: nextBatch }
     }
 
     case 'paused': {
@@ -56,7 +83,11 @@ export function batchExecutionReducer(
         return state
       }
 
-      return { ...state, batch: { ...batch, status: 'paused' } }
+      const nextBatch = appendAudit({ ...batch, status: 'paused' }, operator, {
+        action: 'batch.paused',
+      })
+
+      return { ...state, batch: nextBatch }
     }
 
     case 'finished': {
@@ -64,7 +95,12 @@ export function batchExecutionReducer(
         return state
       }
 
-      return { ...state, batch: { ...batch, status: 'done', currentStepId: null } }
+      const nextBatch = appendAudit({ ...batch, status: 'done', currentStepId: null }, operator, {
+        action: 'batch.finished',
+        detail: batch.label,
+      })
+
+      return { ...state, batch: nextBatch }
     }
 
     case 'stepSelected': {
@@ -108,25 +144,34 @@ export function batchExecutionReducer(
       const validation = validateStepRecord(step, record)
 
       if (!validation.valid) {
-        return {
-          ...state,
-          batch: {
+        const detail = validation.errors
+          .map((error) => {
+            const field = step.requiredFields.find((item) => item.id === error.fieldId)
+            return `${field?.label ?? error.fieldId} (${error.message})`
+          })
+          .join('; ')
+
+        const blockedBatch = appendAudit(
+          {
             ...batch,
             steps: {
               ...batch.steps,
               [action.stepId]: { ...record, status: 'error' },
             },
           },
-        }
+          operator,
+          { action: 'step.blocked', stepId: step.id, detail },
+        )
+
+        return { ...state, batch: blockedBatch }
       }
 
       const orderedSteps = getOrderedSteps(state.recipe)
       const currentIndex = orderedSteps.findIndex((item) => item.id === action.stepId)
       const nextStep = orderedSteps[currentIndex + 1]
 
-      return {
-        ...state,
-        batch: {
+      const completedBatch = appendAudit(
+        {
           ...batch,
           steps: {
             ...batch.steps,
@@ -139,6 +184,20 @@ export function batchExecutionReducer(
           currentStepId: nextStep ? nextStep.id : null,
           status: nextStep ? batch.status : 'done',
         },
+        operator,
+        { action: 'step.completed', stepId: step.id, detail: step.name },
+      )
+
+      if (nextStep) {
+        return { ...state, batch: completedBatch }
+      }
+
+      return {
+        ...state,
+        batch: appendAudit(completedBatch, operator, {
+          action: 'batch.finished',
+          detail: batch.label,
+        }),
       }
     }
 
@@ -163,15 +222,18 @@ export function batchExecutionReducer(
         steps[step.id] = { ...current, status: 'pending', completedAt: undefined }
       })
 
-      return {
-        ...state,
-        batch: {
+      const reopenedBatch = appendAudit(
+        {
           ...batch,
           status: batch.status === 'done' ? 'running' : batch.status,
           currentStepId: action.stepId,
           steps,
         },
-      }
+        operator,
+        { action: 'step.reopened', stepId: action.stepId, detail: orderedSteps[reopenIndex].name },
+      )
+
+      return { ...state, batch: reopenedBatch }
     }
   }
 }

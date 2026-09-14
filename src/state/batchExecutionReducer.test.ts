@@ -241,4 +241,85 @@ describe('batchExecutionReducer', () => {
       initial,
     )
   })
+
+  it('registra o início do lote na trilha de auditoria', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+
+    expect(started.batch.auditTrail).toHaveLength(1)
+    expect(started.batch.auditTrail[0]).toMatchObject({
+      action: 'batch.started',
+      actor: 'Operador',
+    })
+    expect(Date.parse(started.batch.auditTrail[0].timestamp)).not.toBeNaN()
+  })
+
+  it('atribui os eventos ao operador configurado', () => {
+    const state = createInitialBatchExecutionState(sampleRecipe, undefined, 'Maria')
+    const started = batchExecutionReducer(state, { type: 'started' })
+
+    expect(started.batch.auditTrail[0].actor).toBe('Maria')
+  })
+
+  it('registra o avanço bloqueado com o motivo', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const withInvalidValue = batchExecutionReducer(started, {
+      type: 'recordChanged',
+      stepId: 'pesagem',
+      fieldId: 'massa-pesada',
+      value: 900,
+    })
+    const blocked = batchExecutionReducer(withInvalidValue, {
+      type: 'stepCompleted',
+      stepId: 'pesagem',
+    })
+    const lastEvent = blocked.batch.auditTrail[blocked.batch.auditTrail.length - 1]
+
+    expect(lastEvent).toMatchObject({ action: 'step.blocked', stepId: 'pesagem' })
+    expect(lastEvent.detail).toContain('Massa pesada')
+  })
+
+  it('registra a conclusão da etapa e do lote', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const onLastStep = batchExecutionReducer(started, {
+      type: 'stepSelected',
+      stepId: 'liberacao',
+    })
+    const filled = recordValues(onLastStep, 'liberacao', {
+      'laudo-aprovado': true,
+      responsavel: 'Maria',
+    })
+    const completed = batchExecutionReducer(filled, { type: 'stepCompleted', stepId: 'liberacao' })
+
+    expect(completed.batch.auditTrail.map((event) => event.action)).toEqual([
+      'batch.started',
+      'step.completed',
+      'batch.finished',
+    ])
+  })
+
+  it('registra pausa e reabertura de etapa', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const paused = batchExecutionReducer(started, { type: 'paused' })
+    const completed = batchExecutionReducer(
+      recordValues(paused, 'pesagem', {
+        'lote-insumo': 'LOTE-1',
+        'massa-pesada': 505,
+        'balanca-calibrada': true,
+      }),
+      { type: 'stepCompleted', stepId: 'pesagem' },
+    )
+
+    expect(completed.batch.auditTrail.map((event) => event.action)).toEqual([
+      'batch.started',
+      'batch.paused',
+      'step.completed',
+    ])
+
+    const reopened = batchExecutionReducer(completed, { type: 'stepReopened', stepId: 'pesagem' })
+
+    expect(reopened.batch.auditTrail[reopened.batch.auditTrail.length - 1]).toMatchObject({
+      action: 'step.reopened',
+      stepId: 'pesagem',
+    })
+  })
 })

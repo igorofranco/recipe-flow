@@ -68,11 +68,12 @@ Plano detalhado por fases e progresso: `PLANO.md`.
   validação do registro em `src/domain/validation.ts` e transição em `stepCompleted`.
 - Avanço bloqueado sem registro obrigatório, com motivo por campo e reabertura de etapa
   (`stepReopened` invalida as etapas seguintes).
-- Testes de App, layout, tema, grafo, validação e painel + exemplo com MSW.
+- Trilha de auditoria no lote (ator, ação, etapa, horário, detalhe) via `src/domain/audit.ts`,
+  alimentada pelo reducer e exibida em `src/flow/AuditTrailPanel.tsx`.
+- Testes de App, layout, tema, grafo, validação, auditoria e painel + exemplo com MSW.
 
 ## O que falta (a construir)
 
-- Trilha de auditoria (registro das ações/registros do operador).
 - README do repo (impacto > stack).
 - GitHub Actions (lint + test + build) e deploy.
 - Mapear o design system (`../cambiata-ui`) para o `createTheme` do MUI, se ainda não coberto.

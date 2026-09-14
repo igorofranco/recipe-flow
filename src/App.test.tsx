@@ -86,4 +86,21 @@ describe('App', () => {
     expect(getFlowNode(container, 'Pesagem de insumos')).toHaveTextContent('Em andamento')
     expect(screen.getByRole('button', { name: 'Concluir etapa' })).toBeInTheDocument()
   })
+
+  it('registra na trilha de auditoria as ações do operador', async () => {
+    const user = userEvent.setup()
+    renderApp('light')
+
+    expect(screen.getByText('Nenhum evento registrado.')).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Iniciar' }))
+    expect(screen.getByText('Lote iniciado')).toBeInTheDocument()
+
+    await user.type(screen.getByLabelText(/Lote do insumo/), 'LOTE-1')
+    await user.type(screen.getByLabelText(/Massa pesada/), '505')
+    await user.click(screen.getByLabelText(/Balança calibrada no turno/))
+    await user.click(screen.getByRole('button', { name: 'Concluir etapa' }))
+
+    expect(screen.getByText('Etapa concluída')).toBeInTheDocument()
+  })
 })

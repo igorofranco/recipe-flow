@@ -1,6 +1,6 @@
 import type { Batch, Recipe, RecipeStep, StepRecord } from './types'
 
-function createId(prefix: string): string {
+export function createDomainId(prefix: string): string {
   const unique =
     typeof crypto !== 'undefined' && 'randomUUID' in crypto
       ? crypto.randomUUID()
@@ -29,7 +29,7 @@ export function createBatchFromRecipe(recipe: Recipe, options: CreateBatchOption
   }, {})
 
   return {
-    id: options.id ?? createId('lote'),
+    id: options.id ?? createDomainId('lote'),
     label: options.label ?? 'Lote #0001',
     recipeId: recipe.id,
     status: 'idle',

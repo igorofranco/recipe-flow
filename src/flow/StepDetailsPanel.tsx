@@ -56,11 +56,10 @@ export default function StepDetailsPanel({
       square
       elevation={0}
       sx={{
-        width: { xs: '100%', md: 360 },
-        flexShrink: 0,
-        borderLeft: { xs: 0, md: 1 },
-        borderTop: { xs: 1, md: 0 },
-        borderColor: 'divider',
+        width: '100%',
+        flex: 1,
+        minHeight: 0,
+        border: 0,
         bgcolor: 'background.paper',
         overflowY: 'auto',
       }}

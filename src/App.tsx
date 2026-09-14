@@ -8,6 +8,7 @@ import { flowStyles } from './flow/flowStyles'
 import { buildFlowGraph, resolveStepStatus } from './flow/buildFlowGraph'
 import { nodeTypes } from './flow/nodeTypes'
 import StepDetailsPanel from './flow/StepDetailsPanel'
+import AuditTrailPanel from './flow/AuditTrailPanel'
 import type { StepNode } from './flow/types'
 import { getOrderedSteps, getRecipeStep, sampleRecipe } from './domain'
 import { BatchExecutionProvider, useBatchExecution } from './state'
@@ -86,19 +87,35 @@ function BatchExecutionScreen() {
           </ReactFlow>
         </Box>
 
-        {panelStep ? (
-          <StepDetailsPanel
-            step={panelStep}
-            status={panelStatus}
-            record={batch.steps[panelStep.id]}
-            isCurrent={isPanelCurrent}
-            canComplete={canComplete}
-            canReopen={canReopen}
-            onComplete={() => completeStep(panelStep.id)}
-            onReopen={() => reopenStep(panelStep.id)}
-            onRecordChange={(fieldId, value) => setRecordField(panelStep.id, fieldId, value)}
-          />
-        ) : null}
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            width: { xs: '100%', md: 360 },
+            flexShrink: 0,
+            minHeight: 0,
+            borderLeft: { xs: 0, md: 1 },
+            borderTop: { xs: 1, md: 0 },
+            borderColor: 'divider',
+            bgcolor: 'background.paper',
+          }}
+        >
+          {panelStep ? (
+            <StepDetailsPanel
+              step={panelStep}
+              status={panelStatus}
+              record={batch.steps[panelStep.id]}
+              isCurrent={isPanelCurrent}
+              canComplete={canComplete}
+              canReopen={canReopen}
+              onComplete={() => completeStep(panelStep.id)}
+              onReopen={() => reopenStep(panelStep.id)}
+              onRecordChange={(fieldId, value) => setRecordField(panelStep.id, fieldId, value)}
+            />
+          ) : null}
+
+          <AuditTrailPanel events={batch.auditTrail} />
+        </Box>
       </Box>
     </BatchExecutionLayout>
   )
