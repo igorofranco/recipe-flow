@@ -1,6 +1,17 @@
-import { Box, Chip, Divider, Paper, Stack, Typography } from '@mui/material'
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Paper,
+  Stack,
+  Typography,
+} from '@mui/material'
 import type { ChipProps } from '@mui/material'
 import type { RecipeStep, RecordValue, StepRecord, StepStatus } from '../domain'
+import { validateStepRecord } from '../domain'
 import RecordFieldInput from './RecordFieldInput'
 
 const STATUS_META: Record<StepStatus, { label: string; color: ChipProps['color'] }> = {
@@ -14,6 +25,9 @@ export interface StepDetailsPanelProps {
   step: RecipeStep
   status: StepStatus
   record?: StepRecord
+  isCurrent?: boolean
+  canComplete?: boolean
+  onComplete?: () => void
   onRecordChange: (fieldId: string, value: RecordValue) => void
 }
 
@@ -21,9 +35,16 @@ export default function StepDetailsPanel({
   step,
   status,
   record,
+  isCurrent = false,
+  canComplete = false,
+  onComplete,
   onRecordChange,
 }: StepDetailsPanelProps) {
   const meta = STATUS_META[status]
+  const errors =
+    status === 'error'
+      ? validateStepRecord(step, record ?? { stepId: step.id, status, values: {} }).errors
+      : []
 
   return (
     <Paper
@@ -48,6 +69,7 @@ export default function StepDetailsPanel({
         >
           <Chip size="small" variant="outlined" label={`Etapa ${step.order}`} />
           <Chip size="small" color={meta.color} label={meta.label} />
+          {isCurrent ? <Chip size="small" color="primary" label="Etapa atual" /> : null}
         </Stack>
 
         <Box>
@@ -58,6 +80,23 @@ export default function StepDetailsPanel({
             {step.description}
           </Typography>
         </Box>
+
+        {errors.length > 0 ? (
+          <Alert severity="error">
+            <AlertTitle>Registro incompleto ou inválido</AlertTitle>
+            <Stack component="ul" spacing={0.5} sx={{ my: 0, pl: 2 }}>
+              {errors.map((error) => {
+                const field = step.requiredFields.find((item) => item.id === error.fieldId)
+
+                return (
+                  <Typography key={error.fieldId} component="li" variant="body2">
+                    {field?.label ?? error.fieldId}: {error.message}
+                  </Typography>
+                )
+              })}
+            </Stack>
+          </Alert>
+        ) : null}
 
         <Divider />
 
@@ -101,6 +140,29 @@ export default function StepDetailsPanel({
               />
             ))}
           </Stack>
+        </Box>
+
+        <Divider />
+
+        <Box>
+          <Typography variant="overline" color="text.secondary">
+            {isCurrent ? 'Próxima ação' : 'Ação'}
+          </Typography>
+          <Button
+            fullWidth
+            variant="contained"
+            color={status === 'error' ? 'error' : 'primary'}
+            disabled={!canComplete}
+            onClick={onComplete}
+            sx={{ mt: 1 }}
+          >
+            Concluir etapa
+          </Button>
+          {isCurrent ? (
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
+              Preencha os registros obrigatórios para avançar.
+            </Typography>
+          ) : null}
         </Box>
       </Stack>
     </Paper>

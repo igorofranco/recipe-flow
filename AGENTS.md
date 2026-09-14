@@ -64,12 +64,13 @@ Plano detalhado por fases e progresso: `PLANO.md`.
   de detalhes/registro (`src/flow/StepDetailsPanel.tsx`).
 - Builder do grafo explicável e testável (`src/flow/buildFlowGraph.ts`): projeta receita + lote em
   nós/arestas, sem guardar estado no nó.
-- Testes de App, layout, tema, grafo e painel + exemplo com MSW.
+- Estados por etapa (pendente, ativa, concluída, erro) derivados do lote em `src/flow/buildFlowGraph.ts`;
+  validação do registro em `src/domain/validation.ts` e transição em `stepCompleted`.
+- Testes de App, layout, tema, grafo, validação e painel + exemplo com MSW.
 
 ## O que falta (a construir)
 
-- Estados por etapa (pendente, ativa, concluída, erro) e destaque da etapa atual.
-- Regras de validação de avanço e onde vive o estado (App vs. nó).
+- Regras de validação de avanço na UI (bloquear, mostrar o motivo e reabrir etapa).
 - Trilha de auditoria (registro das ações/registros do operador).
 - README do repo (impacto > stack).
 - GitHub Actions (lint + test + build) e deploy.

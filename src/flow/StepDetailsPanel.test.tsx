@@ -84,4 +84,53 @@ describe('StepDetailsPanel', () => {
 
     expect(screen.getByLabelText(/Lote de envase/)).toHaveValue('ENV-42')
   })
+
+  it('mostra o motivo quando a etapa está em erro', () => {
+    render(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="error"
+        record={{ stepId: 'pesagem', status: 'error', values: {} }}
+        isCurrent
+        canComplete
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    const alert = screen.getByRole('alert')
+
+    expect(alert).toHaveTextContent('Registro incompleto ou inválido')
+    expect(alert).toHaveTextContent('Lote do insumo: Campo obrigatório')
+  })
+
+  it('destaca a próxima ação e só habilita a conclusão quando aplicável', async () => {
+    const user = userEvent.setup()
+    const onComplete = vi.fn()
+    const { rerender } = render(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="active"
+        record={{ stepId: 'pesagem', status: 'active', values: {} }}
+        isCurrent
+        canComplete
+        onComplete={onComplete}
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByText('Próxima ação')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Concluir etapa' }))
+    expect(onComplete).toHaveBeenCalledOnce()
+
+    rerender(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="pending"
+        record={{ stepId: 'pesagem', status: 'pending', values: {} }}
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('button', { name: 'Concluir etapa' })).toBeDisabled()
+  })
 })

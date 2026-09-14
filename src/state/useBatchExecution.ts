@@ -10,6 +10,7 @@ export interface UseBatchExecutionResult {
   finish: () => void
   selectStep: (stepId: string) => void
   setRecordField: (stepId: string, fieldId: string, value: RecordValue) => void
+  completeStep: (stepId: string) => void
 }
 
 export function useBatchExecution(): UseBatchExecutionResult {
@@ -31,6 +32,7 @@ export function useBatchExecution(): UseBatchExecutionResult {
       selectStep: (stepId: string) => dispatch({ type: 'stepSelected', stepId }),
       setRecordField: (stepId: string, fieldId: string, value: RecordValue) =>
         dispatch({ type: 'recordChanged', stepId, fieldId, value }),
+      completeStep: (stepId: string) => dispatch({ type: 'stepCompleted', stepId }),
     }),
     [state, dispatch],
   )

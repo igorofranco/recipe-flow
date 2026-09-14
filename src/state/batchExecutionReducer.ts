@@ -1,4 +1,9 @@
-import { createBatchFromRecipe, getOrderedSteps } from '../domain'
+import {
+  createBatchFromRecipe,
+  getOrderedSteps,
+  getRecipeStep,
+  validateStepRecord,
+} from '../domain'
 import type { Batch, CreateBatchOptions, Recipe, RecordValue } from '../domain'
 
 export type BatchExecutionAction =
@@ -7,6 +12,7 @@ export type BatchExecutionAction =
   | { type: 'finished' }
   | { type: 'stepSelected'; stepId: string }
   | { type: 'recordChanged'; stepId: string; fieldId: string; value: RecordValue }
+  | { type: 'stepCompleted'; stepId: string }
 
 export interface BatchExecutionState {
   recipe: Recipe
@@ -86,6 +92,51 @@ export function batchExecutionReducer(
               values: { ...record.values, [action.fieldId]: action.value },
             },
           },
+        },
+      }
+    }
+
+    case 'stepCompleted': {
+      const step = getRecipeStep(state.recipe, action.stepId)
+      const record = batch.steps[action.stepId]
+
+      if (!step || !record) {
+        return state
+      }
+
+      const validation = validateStepRecord(step, record)
+
+      if (!validation.valid) {
+        return {
+          ...state,
+          batch: {
+            ...batch,
+            steps: {
+              ...batch.steps,
+              [action.stepId]: { ...record, status: 'error' },
+            },
+          },
+        }
+      }
+
+      const orderedSteps = getOrderedSteps(state.recipe)
+      const currentIndex = orderedSteps.findIndex((item) => item.id === action.stepId)
+      const nextStep = orderedSteps[currentIndex + 1]
+
+      return {
+        ...state,
+        batch: {
+          ...batch,
+          steps: {
+            ...batch.steps,
+            [action.stepId]: {
+              ...record,
+              status: 'done',
+              completedAt: new Date().toISOString(),
+            },
+          },
+          currentStepId: nextStep ? nextStep.id : null,
+          status: nextStep ? batch.status : 'done',
         },
       }
     }

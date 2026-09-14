@@ -82,4 +82,85 @@ describe('batchExecutionReducer', () => {
       }),
     ).toBe(initial)
   })
+
+  it('conclui a etapa válida e avança para a próxima', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const filled = [
+      {
+        type: 'recordChanged' as const,
+        stepId: 'pesagem',
+        fieldId: 'lote-insumo',
+        value: 'LOTE-1',
+      },
+      { type: 'recordChanged' as const, stepId: 'pesagem', fieldId: 'massa-pesada', value: 505 },
+      {
+        type: 'recordChanged' as const,
+        stepId: 'pesagem',
+        fieldId: 'balanca-calibrada',
+        value: true,
+      },
+    ].reduce(batchExecutionReducer, started)
+
+    const completed = batchExecutionReducer(filled, { type: 'stepCompleted', stepId: 'pesagem' })
+
+    expect(completed.batch.steps.pesagem.status).toBe('done')
+    expect(completed.batch.steps.pesagem.completedAt).toBeDefined()
+    expect(completed.batch.currentStepId).toBe('preparo')
+    expect(completed.batch.status).toBe('running')
+  })
+
+  it('marca erro e não avança quando o registro é inválido', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const withInvalidValue = batchExecutionReducer(started, {
+      type: 'recordChanged',
+      stepId: 'pesagem',
+      fieldId: 'massa-pesada',
+      value: 900,
+    })
+
+    const blocked = batchExecutionReducer(withInvalidValue, {
+      type: 'stepCompleted',
+      stepId: 'pesagem',
+    })
+
+    expect(blocked.batch.steps.pesagem.status).toBe('error')
+    expect(blocked.batch.currentStepId).toBe('pesagem')
+    expect(blocked.batch.status).toBe('running')
+  })
+
+  it('conclui o lote ao finalizar a última etapa', () => {
+    const started = batchExecutionReducer(initialState(), { type: 'started' })
+    const onLastStep = batchExecutionReducer(started, {
+      type: 'stepSelected',
+      stepId: 'liberacao',
+    })
+    const filled = [
+      {
+        type: 'recordChanged' as const,
+        stepId: 'liberacao',
+        fieldId: 'laudo-aprovado',
+        value: true,
+      },
+      {
+        type: 'recordChanged' as const,
+        stepId: 'liberacao',
+        fieldId: 'responsavel',
+        value: 'Maria',
+      },
+    ].reduce(batchExecutionReducer, onLastStep)
+
+    const completed = batchExecutionReducer(filled, { type: 'stepCompleted', stepId: 'liberacao' })
+
+    expect(completed.batch.steps.liberacao.status).toBe('done')
+    expect(completed.batch.currentStepId).toBeNull()
+    expect(completed.batch.status).toBe('done')
+  })
+
+  it('ignora concluir uma etapa inexistente', () => {
+    const initial = initialState()
+
+    expect(batchExecutionReducer(initial, { type: 'stepCompleted', stepId: 'inexistente' })).toBe(
+      initial,
+    )
+  })
 })

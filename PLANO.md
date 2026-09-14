@@ -55,13 +55,13 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Painel lateral com os detalhes e o registro da etapa selecionada
 - [x] Ações de zoom, controles e minimap funcionando com o tema
 
-## Fase 3 — Estados por etapa
+## Fase 3 — Estados por etapa (concluída)
 
-- [ ] Estado pendente
-- [ ] Estado ativa (etapa atual do lote)
-- [ ] Estado concluída
-- [ ] Estado erro (registro inválido ou incompleto)
-- [ ] Destaque visual claro da etapa atual e da próxima ação do operador
+- [x] Estado pendente
+- [x] Estado ativa (etapa atual do lote)
+- [x] Estado concluída
+- [x] Estado erro (registro inválido ou incompleto)
+- [x] Destaque visual claro da etapa atual e da próxima ação do operador
 
 ## Fase 4 — Validação de avanço
 
