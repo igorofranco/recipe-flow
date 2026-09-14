@@ -11,7 +11,7 @@ Marque os itens com [x] ao concluir. Texto em pt-BR.
 > Objetivo: provar React + TypeScript + Material UI + React Flow, com domínio MES/EBR, testes,
 > CI/CD e deploy. Toda decisão deve ser explicável em voz alta.
 
-Atualizado em 2026-09-13.
+Atualizado em 2026-09-14.
 
 ## Visão do que o demo precisa ser
 
@@ -46,14 +46,14 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Documentar em voz alta por que o estado vive ali e não no custom node
       (nó é projeção; estado único garante validação e auditoria, e sobrevive a re-layout)
 
-## Fase 2 — Grafo no React Flow
+## Fase 2 — Grafo no React Flow (concluída)
 
-- [ ] Gerar nós a partir das etapas da receita (sem nó fixo no `App.tsx`)
-- [ ] Conectar etapas com arestas na ordem da receita
-- [ ] Custom node com Material UI (Card/Chip) e handles
-- [ ] Aplicar o estilo de cada nó conforme o estado da etapa
-- [ ] Painel lateral com os detalhes e o registro da etapa selecionada
-- [ ] Ações de zoom, controles e minimap funcionando com o tema
+- [x] Gerar nós a partir das etapas da receita (sem nó fixo no `App.tsx`)
+- [x] Conectar etapas com arestas na ordem da receita
+- [x] Custom node com Material UI (Card/Chip) e handles
+- [x] Aplicar o estilo de cada nó conforme o estado da etapa
+- [x] Painel lateral com os detalhes e o registro da etapa selecionada
+- [x] Ações de zoom, controles e minimap funcionando com o tema
 
 ## Fase 3 — Estados por etapa
 

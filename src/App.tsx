@@ -1,30 +1,32 @@
+import { useMemo } from 'react'
 import { Box } from '@mui/material'
 import { useColorScheme } from '@mui/material/styles'
-import { Background, Controls, MiniMap, ReactFlow, type Edge, type Node } from '@xyflow/react'
+import { Background, Controls, MiniMap, ReactFlow } from '@xyflow/react'
+import type { Edge } from '@xyflow/react'
 import BatchExecutionLayout from './layouts/BatchExecutionLayout'
 import { flowStyles } from './flow/flowStyles'
-import { getOrderedSteps, sampleRecipe } from './domain'
+import { buildFlowGraph, resolveStepStatus } from './flow/buildFlowGraph'
+import { nodeTypes } from './flow/nodeTypes'
+import StepDetailsPanel from './flow/StepDetailsPanel'
+import type { StepNode } from './flow/types'
+import { getOrderedSteps, getRecipeStep, sampleRecipe } from './domain'
 import { BatchExecutionProvider, useBatchExecution } from './state'
 
-const nodes: Node[] = [
-  {
-    id: '1',
-    position: { x: 0, y: 0 },
-    data: { label: 'Recipe Flow' },
-  },
-]
-
-const edges: Edge[] = []
-
 function BatchExecutionScreen() {
-  const { recipe, batch, start, pause, finish, selectStep } = useBatchExecution()
+  const { recipe, batch, start, pause, finish, selectStep, setRecordField } = useBatchExecution()
   const orderedSteps = getOrderedSteps(recipe)
+  const { nodes, edges } = useMemo(() => buildFlowGraph(recipe, batch), [recipe, batch])
+
   const activeStep = batch.currentStepId
     ? Math.max(
         orderedSteps.findIndex((step) => step.id === batch.currentStepId),
         0,
       )
     : 0
+
+  const selectedStep = batch.currentStepId ? getRecipeStep(recipe, batch.currentStepId) : undefined
+  const panelStep = selectedStep ?? orderedSteps[0]
+
   const { mode, systemMode } = useColorScheme()
   const colorMode = mode === 'system' ? (systemMode ?? 'light') : mode
 
@@ -43,12 +45,38 @@ function BatchExecutionScreen() {
       onPause={pause}
       onFinish={finish}
     >
-      <Box sx={flowStyles}>
-        <ReactFlow colorMode={colorMode} nodes={nodes} edges={edges} fitView>
-          <Background />
-          <Controls />
-          <MiniMap />
-        </ReactFlow>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          height: '100%',
+          minHeight: 0,
+        }}
+      >
+        <Box sx={(theme) => ({ ...flowStyles(theme), flex: 1, minWidth: 0 })}>
+          <ReactFlow<StepNode, Edge>
+            colorMode={colorMode}
+            nodes={nodes}
+            edges={edges}
+            nodeTypes={nodeTypes}
+            onNodeClick={(_, node) => selectStep(node.id)}
+            nodesConnectable={false}
+            fitView
+          >
+            <Background />
+            <Controls />
+            <MiniMap />
+          </ReactFlow>
+        </Box>
+
+        {panelStep ? (
+          <StepDetailsPanel
+            step={panelStep}
+            status={resolveStepStatus(batch, panelStep.id)}
+            record={batch.steps[panelStep.id]}
+            onRecordChange={(fieldId, value) => setRecordField(panelStep.id, fieldId, value)}
+          />
+        ) : null}
       </Box>
     </BatchExecutionLayout>
   )

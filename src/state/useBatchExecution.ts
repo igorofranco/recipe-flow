@@ -1,5 +1,5 @@
 import { useContext, useMemo } from 'react'
-import type { Batch, Recipe } from '../domain'
+import type { Batch, Recipe, RecordValue } from '../domain'
 import { BatchExecutionContext } from './BatchExecutionContext'
 
 export interface UseBatchExecutionResult {
@@ -9,6 +9,7 @@ export interface UseBatchExecutionResult {
   pause: () => void
   finish: () => void
   selectStep: (stepId: string) => void
+  setRecordField: (stepId: string, fieldId: string, value: RecordValue) => void
 }
 
 export function useBatchExecution(): UseBatchExecutionResult {
@@ -28,6 +29,8 @@ export function useBatchExecution(): UseBatchExecutionResult {
       pause: () => dispatch({ type: 'paused' }),
       finish: () => dispatch({ type: 'finished' }),
       selectStep: (stepId: string) => dispatch({ type: 'stepSelected', stepId }),
+      setRecordField: (stepId: string, fieldId: string, value: RecordValue) =>
+        dispatch({ type: 'recordChanged', stepId, fieldId, value }),
     }),
     [state, dispatch],
   )

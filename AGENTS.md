@@ -59,12 +59,16 @@ Plano detalhado por fases e progresso: `PLANO.md`.
 - Tema MUI com tokens claro/escuro (`src/theme/`), paleta custom (`accent`, `neutral`, `base`) e `radius`.
 - Layout do lote (`src/layouts/BatchExecutionLayout.tsx`): AppBar, chip de status, botões
   Iniciar/Pausar/Finalizar e Stepper de etapas.
-- Canvas React Flow estilizado pelo tema (`src/flow/flowStyles.ts`) com 1 nó fixo (`src/App.tsx`).
-- Testes de App, layout e tema + exemplo com MSW.
+- Canvas React Flow estilizado pelo tema (`src/flow/flowStyles.ts`) com nós gerados a partir das
+  etapas da receita, arestas na ordem, custom node MUI (`src/flow/StepNode.tsx`) e painel lateral
+  de detalhes/registro (`src/flow/StepDetailsPanel.tsx`).
+- Builder do grafo explicável e testável (`src/flow/buildFlowGraph.ts`): projeta receita + lote em
+  nós/arestas, sem guardar estado no nó.
+- Testes de App, layout, tema, grafo e painel + exemplo com MSW.
 
 ## O que falta (a construir)
 
-- Modelo real do fluxo: nós por etapa, arestas, estados e custom node.
+- Estados por etapa (pendente, ativa, concluída, erro) e destaque da etapa atual.
 - Regras de validação de avanço e onde vive o estado (App vs. nó).
 - Trilha de auditoria (registro das ações/registros do operador).
 - README do repo (impacto > stack).

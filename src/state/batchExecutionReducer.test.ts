@@ -55,4 +55,31 @@ describe('batchExecutionReducer', () => {
       initial,
     )
   })
+
+  it('registra um valor de campo sem mutar o estado anterior', () => {
+    const initial = initialState()
+    const updated = batchExecutionReducer(initial, {
+      type: 'recordChanged',
+      stepId: 'pesagem',
+      fieldId: 'lote-insumo',
+      value: 'ABC123',
+    })
+
+    expect(updated.batch.steps.pesagem.values['lote-insumo']).toBe('ABC123')
+    expect(initial.batch.steps.pesagem.values).toEqual({})
+    expect(updated.batch.steps.preparo).toBe(initial.batch.steps.preparo)
+  })
+
+  it('ignora o registro em uma etapa inexistente', () => {
+    const initial = initialState()
+
+    expect(
+      batchExecutionReducer(initial, {
+        type: 'recordChanged',
+        stepId: 'inexistente',
+        fieldId: 'campo',
+        value: 1,
+      }),
+    ).toBe(initial)
+  })
 })

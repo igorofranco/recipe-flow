@@ -1,11 +1,12 @@
 import { createBatchFromRecipe, getOrderedSteps } from '../domain'
-import type { Batch, CreateBatchOptions, Recipe } from '../domain'
+import type { Batch, CreateBatchOptions, Recipe, RecordValue } from '../domain'
 
 export type BatchExecutionAction =
   | { type: 'started' }
   | { type: 'paused' }
   | { type: 'finished' }
   | { type: 'stepSelected'; stepId: string }
+  | { type: 'recordChanged'; stepId: string; fieldId: string; value: RecordValue }
 
 export interface BatchExecutionState {
   recipe: Recipe
@@ -65,6 +66,28 @@ export function batchExecutionReducer(
       }
 
       return { ...state, batch: { ...batch, currentStepId: action.stepId } }
+    }
+
+    case 'recordChanged': {
+      const record = batch.steps[action.stepId]
+
+      if (!record) {
+        return state
+      }
+
+      return {
+        ...state,
+        batch: {
+          ...batch,
+          steps: {
+            ...batch.steps,
+            [action.stepId]: {
+              ...record,
+              values: { ...record.values, [action.fieldId]: action.value },
+            },
+          },
+        },
+      }
     }
   }
 }
