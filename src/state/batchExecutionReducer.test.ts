@@ -211,6 +211,24 @@ describe('batchExecutionReducer', () => {
     expect(reopened.batch.steps.envase.status).toBe('pending')
   })
 
+  it('ignora reabrir uma etapa registrada fora da ordem da receita', () => {
+    const initial = initialState()
+    const withUnknownStep: BatchExecutionState = {
+      ...initial,
+      batch: {
+        ...initial.batch,
+        steps: {
+          ...initial.batch.steps,
+          fantasma: { stepId: 'fantasma', status: 'done', values: {} },
+        },
+      },
+    }
+
+    expect(
+      batchExecutionReducer(withUnknownStep, { type: 'stepReopened', stepId: 'fantasma' }),
+    ).toBe(withUnknownStep)
+  })
+
   it('reabre uma etapa de um lote concluído e retoma a execução', () => {
     const started = batchExecutionReducer(initialState(), { type: 'started' })
     const completed = batchExecutionReducer(

@@ -103,6 +103,20 @@ describe('StepDetailsPanel', () => {
     expect(alert).toHaveTextContent('Lote do insumo: Campo obrigatório')
   })
 
+  it('valida a etapa em erro mesmo sem registro carregado', () => {
+    render(
+      <StepDetailsPanel
+        step={step('pesagem')}
+        status="error"
+        isCurrent
+        canComplete
+        onRecordChange={vi.fn()}
+      />,
+    )
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Lote do insumo: Campo obrigatório')
+  })
+
   it('destaca a próxima ação e só habilita a conclusão quando aplicável', async () => {
     const user = userEvent.setup()
     const onComplete = vi.fn()

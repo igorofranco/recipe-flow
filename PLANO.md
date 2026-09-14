@@ -85,12 +85,16 @@ estado visível (pendente, ativa, concluída, erro) e todo evento entra numa tri
 - [x] Garantir que nenhuma cor esteja hardcoded (tudo pelo tema)
       (teste `src/theme/noHardcodedColors.test.ts` varre o código fora de `src/theme`)
 
-## Fase 7 — Testes
+## Fase 7 — Testes (concluída)
 
-- [ ] Cobertura das regras de fluxo e validação
-- [ ] Integração: avançar etapa, bloquear sem registro, ver trilha
-- [ ] `npm run test:coverage` sem partes críticas descobertas
-- [ ] Testes existentes atualizados quando o comportamento mudar
+- [x] Cobertura das regras de fluxo e validação
+      (`validation.test.ts`, `buildFlowGraph.test.ts`, `StepNode.test.tsx`, `RecordFieldInput.test.tsx`)
+- [x] Integração: avançar etapa, bloquear sem registro, ver trilha
+      (`App.test.tsx` percorre a receita inteira e confere a trilha de auditoria)
+- [x] `npm run test:coverage` sem partes críticas descobertas
+      (100% de statements/funções/linhas; ramos restantes são fallbacks defensivos)
+- [x] Testes existentes atualizados quando o comportamento mudar
+      (nenhuma regra mudou nesta fase; suíte mantida verde)
 
 ## Fase 8 — CI/CD
 

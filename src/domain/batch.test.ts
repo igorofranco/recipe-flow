@@ -1,7 +1,11 @@
-import { describe, expect, it } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createBatchFromRecipe, sampleRecipe } from './index'
 
 describe('createBatchFromRecipe', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals()
+  })
+
   it('cria um lote idle com uma etapa pendente por etapa da receita', () => {
     const batch = createBatchFromRecipe(sampleRecipe, { id: 'lote-teste', label: 'Lote #0042' })
 
@@ -24,5 +28,13 @@ describe('createBatchFromRecipe', () => {
     expect(batch.id).toMatch(/^lote-/)
     expect(batch.label).toBe('Lote #0001')
     expect(Number.isNaN(Date.parse(batch.createdAt))).toBe(false)
+  })
+
+  it('gera id sem crypto.randomUUID quando a API não está disponível', () => {
+    vi.stubGlobal('crypto', undefined)
+
+    const batch = createBatchFromRecipe(sampleRecipe)
+
+    expect(batch.id).toMatch(/^lote-[a-z0-9]+$/)
   })
 })

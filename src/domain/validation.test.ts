@@ -53,10 +53,39 @@ describe('validateRecordField', () => {
     expect(validateRecordField(field, 'Envasadora C')).toBe('Selecione uma opção válida')
   })
 
+  it('cobra o campo select obrigatório vazio', () => {
+    const field = step('envase').requiredFields.find((item) => item.id === 'equipamento')!
+
+    expect(validateRecordField(field, undefined)).toBe('Campo obrigatório')
+    expect(validateRecordField(field, '   ')).toBe('Campo obrigatório')
+  })
+
+  it('aceita número informado como texto e converte antes de comparar', () => {
+    const field = step('pesagem').requiredFields.find((item) => item.id === 'massa-pesada')!
+
+    expect(validateRecordField(field, '505')).toBeUndefined()
+    expect(validateRecordField(field, '498')).toBe('Valor mínimo 500')
+  })
+
+  it('recusa valor numérico não numérico', () => {
+    const field = step('pesagem').requiredFields.find((item) => item.id === 'massa-pesada')!
+
+    expect(validateRecordField(field, 'abc')).toBe('Valor numérico inválido')
+  })
+
   it('ignora campo opcional vazio', () => {
     const field = step('liberacao').requiredFields.find((item) => item.id === 'observacoes')!
 
     expect(validateRecordField(field, undefined)).toBeUndefined()
+  })
+
+  it('não exige confirmação de campo booleano opcional', () => {
+    expect(
+      validateRecordField(
+        { id: 'opcional', label: 'Opcional', kind: 'boolean', required: false },
+        false,
+      ),
+    ).toBeUndefined()
   })
 })
 

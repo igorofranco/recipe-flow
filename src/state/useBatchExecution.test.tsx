@@ -20,10 +20,36 @@ function Probe() {
   )
 }
 
+function StepProbe() {
+  const { batch, start, setRecordField, completeStep, reopenStep } = useBatchExecution()
+  const record = batch.steps.pesagem
+
+  return (
+    <div>
+      <span data-testid="value">{String(record.values['lote-insumo'] ?? '')}</span>
+      <span data-testid="step-status">{record.status}</span>
+      <button onClick={start}>iniciar</button>
+      <button onClick={() => setRecordField('pesagem', 'lote-insumo', 'LOTE-1')}>lote</button>
+      <button onClick={() => setRecordField('pesagem', 'massa-pesada', 505)}>massa</button>
+      <button onClick={() => setRecordField('pesagem', 'balanca-calibrada', true)}>balanca</button>
+      <button onClick={() => completeStep('pesagem')}>concluir</button>
+      <button onClick={() => reopenStep('pesagem')}>reabrir</button>
+    </div>
+  )
+}
+
 function renderProbe() {
   return render(
     <BatchExecutionProvider recipe={sampleRecipe}>
       <Probe />
+    </BatchExecutionProvider>,
+  )
+}
+
+function renderStepProbe() {
+  return render(
+    <BatchExecutionProvider recipe={sampleRecipe}>
+      <StepProbe />
     </BatchExecutionProvider>,
   )
 }
@@ -53,6 +79,23 @@ describe('useBatchExecution', () => {
 
     await user.click(screen.getByRole('button', { name: 'finalizar' }))
     expect(screen.getByTestId('status')).toHaveTextContent('done')
+  })
+
+  it('registra campos, conclui e reabre a etapa', async () => {
+    const user = userEvent.setup()
+    renderStepProbe()
+
+    await user.click(screen.getByRole('button', { name: 'iniciar' }))
+    await user.click(screen.getByRole('button', { name: 'lote' }))
+    expect(screen.getByTestId('value')).toHaveTextContent('LOTE-1')
+
+    await user.click(screen.getByRole('button', { name: 'massa' }))
+    await user.click(screen.getByRole('button', { name: 'balanca' }))
+    await user.click(screen.getByRole('button', { name: 'concluir' }))
+    expect(screen.getByTestId('step-status')).toHaveTextContent('done')
+
+    await user.click(screen.getByRole('button', { name: 'reabrir' }))
+    expect(screen.getByTestId('step-status')).toHaveTextContent('pending')
   })
 
   it('falha ao ser usado fora do provider', () => {
